@@ -29,7 +29,6 @@ def main():
 	# 'folder' path
 	folder_path = '/etc/bird/filtering/prefixes/'
 
-	# Using the as_set name also for the list name
 	output = subprocess.check_output(['sudo', '/usr/local/bin/bgpq4', *flags, f'{list_name}', *as_set])
 
 	# convert bytes to string

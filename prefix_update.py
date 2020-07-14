@@ -1,39 +1,51 @@
 import subprocess
 import time
 
-# AS-SET List
-as_set = ['AS-213326-PEERS']
+def write_file(folder_path, comment_time, str_define, output):
+        # Store the Prefixes in the file
+        f = open(f"{folder_path}prefixes_v6.conf", "w")
+        f.write(comment_time + str_define + " " + output.rstrip().decode("utf-8"))
+        f.close()
 
-# bgpq4 flags
-flags = ['-6','-A','-b', '-R 48', '-l']
+def main():
+	# Maintain separate lists for IPv4's and IPv6's
+	# AS-SETs & ASNs List
+	as_set = ['AS-213326-PEERS', 'AS207740']
 
-# List name
-# Bird doesn't like '-' in names
-list_name = [as_set_name.replace('-','_') for as_set_name in as_set]
+	# bgpq4 flags
+	flags = ['-6','-A','-b', '-R 48', '-l']
 
-# 'define' keyword
-str_define = 'define'
+	# List name IPv6
+	# Bird doesn't like '-' in names
+	# v6_string = "_v6"
+	# list_name = [as_set_name.replace('-','_') + v6_string for as_set_name in as_set]
 
-# 'folder' path
-folder_path = '/etc/bird/filtering/prefixes/'
+	# We can combine multiple AS-SET's and ASN's in one command and bgpq4 gives us the combined list. So, let's choose a generic list name.
+	list_name = 'Peers_v6'
 
-# Using the as_set name also for the list name
-output = subprocess.check_output(['sudo', '/usr/local/bin/bgpq4', *flags, f'{list_name[0]}', f'{as_set[0]}'])
+	# 'define' keyword
+	str_define = 'define'
 
-# convert bytes to string
-# Strip the last carriage return using rstrip()
-# concatenate "define" word
+	# 'folder' path
+	folder_path = '/etc/bird/filtering/prefixes/'
 
-# print(str_define + " " + output.rstrip().decode("utf-8"))
+	# Using the as_set name also for the list name
+	output = subprocess.check_output(['sudo', '/usr/local/bin/bgpq4', *flags, f'{list_name}', *as_set])
 
-# Time
-seconds = time.time()
-str_time = time.ctime(seconds)
-comment_time = "# Updated: " + str_time + "\n\n";
+	# convert bytes to string
+	# Strip the last carriage return using rstrip()
+	# concatenate "define" word
 
-print(comment_time)
+	# print(str_define + " " + output.rstrip().decode("utf-8"))
 
-# Store the Prefixes in the file
-f = open(f"{folder_path}prefixes.conf", "w")
-f.write(comment_time + str_define + " " + output.rstrip().decode("utf-8"))
-f.close()
+	# Time
+	seconds = time.time()
+	str_time = time.ctime(seconds)
+	comment_time = "# Updated: " + str_time + "\n\n";
+
+	print(comment_time)
+
+	write_file(folder_path, comment_time, str_define, output)
+
+# Execution starts here
+main()

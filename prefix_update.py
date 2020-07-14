@@ -18,7 +18,7 @@ str_define = 'define'
 folder_path = '/etc/bird/filtering/prefixes/'
 
 # Using the as_set name also for the list name
-output = subprocess.check_output(['sudo', '/usr/local/bin/bgpq4', f'{flags[0]}', f'{flags[1]}', f'{flags[2]}', f'{flags[3]}', f'{flags[4]}', f'{list_name[0]}', f'{as_set[0]}'])
+output = subprocess.check_output(['sudo', '/usr/local/bin/bgpq4', *flags, f'{list_name[0]}', f'{as_set[0]}'])
 
 # convert bytes to string
 # Strip the last carriage return using rstrip()

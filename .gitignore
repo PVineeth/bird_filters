@@ -1,0 +1,8 @@
+# Ignore These
+**/__pycache__
+
+# exclude everything
+backups/*
+
+# exception to the rule
+!backups/.gitkeep

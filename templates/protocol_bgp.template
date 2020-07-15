@@ -1,0 +1,10 @@
+protocol bgp <name>
+{
+        local as <local_as_number>;
+        source address <source_IP>;
+        import <filter_type>;
+        export <filter_type>;
+        graceful restart on;
+        default bgp_local_pref <pref_number>;
+        neighbor <neighbor_IP> as <neighbor_as>;
+}

@@ -16,10 +16,10 @@ class Protocols:
     
     def __load_template(self): # __<func_name>: private function
         if self.type == Types.BGP:
-            f = open("templates/protocol_bgp.template", "rt")
+            f = open("../../templates/protocol_bgp.template", "rt")
             self.template = f.read()
         elif self.type == Types.OSPF:
-            f = open("templates/protocol_bgp.template", "rt")
+            f = open("../../templates/protocol_bgp.template", "rt")
             self.template = f.read()
 
         f.close()
@@ -44,15 +44,18 @@ class Protocols:
 
         self.__write_template()
 
+    def list_protocol(self):
+        pass
+
     def __write_template(self):
         try:
-            f = open("backups/protocols.prt", "r")
+            f = open("../../backups/protocols.prt", "r")
             self.__write_template_file("r+")
         except IOError:
             self.__write_template_file("w+")
 
     def __write_template_file(self, flag):
-        file_obj = open("backups/protocols.prt", flag)
+        file_obj = open("../../backups/protocols.prt", flag)
 
         if file_obj.read(1):
                 file_obj.write("\n\n" + self.template)

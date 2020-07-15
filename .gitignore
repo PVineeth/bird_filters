@@ -1,5 +1,6 @@
 # Ignore These
 **/__pycache__
+**/.DS_Store
 
 # exclude everything
 backups/*

@@ -1,30 +1,63 @@
 # Generate Protocols for Bird 1.6.8
 # Author: Vineeth Penugonda
-from enum import Enum, unique
+from enum import Enum, unique, auto
+from typing import Optional
 
 @unique # Decorator
 class Types(Enum):
     BGP = 1
     OSPF = 2
 
-class Protocols:
-    template = None
+@unique
+class Format(Enum):
+    OPENBGPD = auto()
+    BIRD_1_x = auto()
+    BIRD_2_x = auto()
+    JUNIPER = auto()
+    JUNIPERRFL = auto()
+    JSON = auto()
+    MIKROTIK = auto()
+    SROSMD = auto()
+    SROSCL = auto()
+    HUAWEI = auto()
 
-    def __init__(self, type):
+class TemplateFilePaths():
+    TEMPLATE_BIRD_BGP_1_x = "../../templates/bird_1.x/protocol_bgp_1_x.template"
+    TEMPLATE_BIRD_OSPF_1_x = "../../templates/bird_1.x/protocol_ospf_1_x.template"
+
+class ConfigFilePaths():
+    CONFIG_BIRD_BGP_1_x = "/etc/bird/filtering/prefixes/protocols_bgp.prt"
+    CONFIG_BP_BIRD_BGP_1_x = "../../backups/bird_protocols_bgp.prt"
+
+
+class Protocols:
+    template: Optional[str] = None
+    config: Optional[str] = None
+
+    def __init__(self, type = Types.BGP, format = Format.BIRD_1_x):
         self.type = type
+        self.format = format
         self.__load_template()
     
     def __load_template(self): # __<func_name>: private function
+        if self.format == Format.BIRD_1_x:
+            self.__load_template_bird_1_x()
+
+    def __load_template_bird_1_x(self):
         if self.type == Types.BGP:
-            f = open("../../templates/protocol_bgp.template", "rt")
+            f = open(TemplateFilePaths.TEMPLATE_BIRD_BGP_1_x, "rt")
             self.template = f.read()
-        elif self.type == Types.OSPF:
-            f = open("../../templates/protocol_bgp.template", "rt")
+        elif self.type == Types.OSPF: # Future Implementation
+            f = open(TemplateFilePaths.TEMPLATE_BIRD_OSPF_1_x, "rt")
             self.template = f.read()
 
         f.close()
 
     def create_protocol(self):
+        if self.format == Format.BIRD_1_x and self.type == Types.BGP:
+            self.__create_protocol_bird_bgp()
+
+    def __create_protocol_bird_bgp(self):
         protocol_name = input("Enter Protocol Name? ")
         self.template = self.template.replace("<name>", protocol_name)
         local_as_num = input("Enter Local ASN? ")
@@ -42,27 +75,51 @@ class Protocols:
         neighbor_AS = input("Enter Neighbor AS? ")
         self.template = self.template.replace("<neighbor_as>", neighbor_AS)
 
-        self.__write_template()
+        self.__write_config()
 
     def list_protocol(self):
-        pass
+        if self.format == Format.BIRD_1_x and self.type == Types.BGP:
+            self.__read_config_file__bird_bgp_1_x()
 
-    def __write_template(self):
+    def __read_config_file__bird_bgp_1_x(self, no_exception = False) -> int: # ->: annotations
         try:
-            f = open("../../backups/protocols.prt", "r")
-            self.__write_template_file("r+")
+            f = open(ConfigFilePaths.CONFIG_BP_BIRD_BGP_1_x, "r")
+            status = 1
+            self.config = f.read()
+            f.close()
+            self.__parse_config_file__bird_bgp_1_x()
         except IOError:
-            self.__write_template_file("w+")
-
-    def __write_template_file(self, flag):
-        file_obj = open("../../backups/protocols.prt", flag)
-
-        if file_obj.read(1):
-                file_obj.write("\n\n" + self.template)
-        else:
-                file_obj.write(self.template)
+            status = -1
+            if not no_exception: # Some functions just need the status
+                raise FileNotFoundError("Configuration file is not found! Please use create_protocol() function to create BGP protocols.")
         
-        file_obj.close()
+        return status
+
+    def __parse_config_file__bird_bgp_1_x(self):
+        print(self.config)
+
+
+    def __write_config(self):
+        status = self.__read_config_file__bird_bgp_1_x(no_exception=True)
+        if status == 1:
+            self.__write_config_file("r+")
+        else:
+            self.__write_config_file("w+")
+            
+            
+
+    def __write_config_file(self, flag):
+        if self.format == Format.BIRD_1_x and self.type == Types.BGP:
+            file_obj = open(ConfigFilePaths.CONFIG_BP_BIRD_BGP_1_x, flag)
+            comment = '''##### Upstreams/Downstreams #####\n\n'''
+
+            if file_obj.read(1):
+                    file_obj.write("\n\n" + self.template)
+            else:
+                    file_obj.write(comment + self.template)
+            
+            print("\nYour File is written to: " + f'{ConfigFilePaths.CONFIG_BIRD_BGP_1_x}' + "\n")
+            file_obj.close()
                                 
         
 

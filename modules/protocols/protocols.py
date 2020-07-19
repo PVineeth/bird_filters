@@ -2,6 +2,8 @@
 # Author: Vineeth Penugonda
 from enum import Enum, unique, auto
 from typing import Optional
+import re
+import json
 
 @unique # Decorator
 class Types(Enum):
@@ -79,28 +81,37 @@ class Protocols:
 
     def list_protocol(self):
         if self.format == Format.BIRD_1_x and self.type == Types.BGP:
-            self.__read_config_file__bird_bgp_1_x()
+            self.__read_config_file()
 
-    def __read_config_file__bird_bgp_1_x(self, no_exception = False) -> int: # ->: annotations
-        try:
-            f = open(ConfigFilePaths.CONFIG_BP_BIRD_BGP_1_x, "r")
-            status = 1
-            self.config = f.read()
-            f.close()
-            self.__parse_config_file__bird_bgp_1_x()
-        except IOError:
-            status = -1
-            if not no_exception: # Some functions just need the status
-                raise FileNotFoundError("Configuration file is not found! Please use create_protocol() function to create BGP protocols.")
+    # just_read = We don't require parsing and raise exceptions when __write_config() uses this function
+    def __read_config_file(self, just_read = False) -> int: # ->: annotations
+        if self.format == Format.BIRD_1_x and self.type == Types.BGP:
+            try:
+                f = open(ConfigFilePaths.CONFIG_BP_BIRD_BGP_1_x, "r")
+                status = 1
+                self.config = f.read()
+                f.close()
+                if not just_read:
+                    self.__parse_config_file__bird_bgp_1_x()
+            except FileNotFoundError:
+                status = -1
+                if not just_read: # Some functions just need the status
+                    raise FileNotFoundError("Configuration file is not found! Please use create_protocol() function to create BGP protocols.")
         
         return status
 
-    def __parse_config_file__bird_bgp_1_x(self):
-        print(self.config)
+    def __parse_config_file__bird_bgp_1_x(self) -> list():
+        protocol_bgp_list = re.findall('protocol bgp (.*)', self.config)
+        print("\nProtocols Enabled:")
+        for proto in protocol_bgp_list:
+            print(proto)
+        print()
+
+        return protocol_bgp_list
 
 
     def __write_config(self):
-        status = self.__read_config_file__bird_bgp_1_x(no_exception=True)
+        status = self.__read_config_file(just_read=True)
         if status == 1:
             self.__write_config_file("r+")
         else:

@@ -81,7 +81,7 @@ class Protocols:
 
     def list_protocol(self):
         if self.format == Format.BIRD_1_x and self.type == Types.BGP:
-            self.__read_config_file()
+            return self.__read_config_file()
 
     # just_read = We don't require parsing and raise exceptions when __write_config() uses this function
     def __read_config_file(self, just_read = False) -> int: # ->: annotations
@@ -92,7 +92,8 @@ class Protocols:
                 self.config = f.read()
                 f.close()
                 if not just_read:
-                    self.__parse_config_file__bird_bgp_1_x()
+                    protocols_list = self.__parse_config_file__bird_bgp_1_x()
+                    return protocols_list
             except FileNotFoundError:
                 status = -1
                 if not just_read: # Some functions just need the status

@@ -1,14 +1,25 @@
-from flask import Flask
-from waitress import serve
+from typing import Optional
+from fastapi import FastAPI
+import json
 
-#proto_obj = prt.protocols(prt.Types.BGP, prt.Format.BIRD_1_x)
+import addpath
+from protocols import protocols as prt
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route('/')
-def hello_world():
-    #return proto_obj.list_protocol()
-    pass
+proto_obj = prt.Protocols(prt.Types.BGP, prt.Format.BIRD_1_x)
 
-if __name__ == '__main__':
-    serve(app, host="127.0.0.1", port=8080)
+string = {"Protocols": proto_obj.list_protocol() }
+print(string)
+
+@app.get("/")
+def read_root():
+    return {"Bird API": {"Version": "1", "Author": "Vineeth Penugonda"}}
+
+@app.get("/protocols")
+def read_protocols():
+    return string
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Optional[str] = None):
+    return {"item_id": item_id, "q": q}

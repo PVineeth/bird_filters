@@ -10,7 +10,7 @@ def write_file(folder_path, comment_time, str_define, output):
 def main():
 	# Maintain separate lists for IPv4's and IPv6's
 	# AS-SETs & ASNs List
-	as_set = ['AS-213326-PEERS', 'AS207740', 'AS208565', 'AS207740']
+	as_set = ['AS-VineethP','AS-213326-PEERS','AS-TaKeN']
 
 	# bgpq4 flags
 	flags = ['-6','-A','-b', '-R 48', '-l']

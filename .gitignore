@@ -4,6 +4,8 @@
 
 # exclude everything
 backups/*
+configs/*
 
 # exception to the rule
 !backups/.gitkeep
+!configs/.gitkeep
